@@ -620,9 +620,9 @@ img.src = IMAGE_URL;
 // ===================== Phase Machine =====================
 // IMAGE: image visible, party hidden, confetti off
 // CELEBRATING (8s total):
-//   0-0.8s:  image bursts (form 1→0), party pops in (form 0→1), confetti starts
-//   0.8-6s: party holds, confetti active
-//   6-8s:   party disperses (form 1→0), image reforms (form 0→1), confetti fades
+//   0-1.5s:   image scatters, party particles converge to form text + balloons + cake
+//   1.5-6s:   party holds (particle text readable), confetti active
+//   6-8s:     party particles scatter (text dissolves), image reforms, confetti fades
 function updatePhase(time) {
   if (phase === 'image') {
     imageForm = 1;
@@ -634,22 +634,22 @@ function updatePhase(time) {
   // Celebrating
   const elapsed = time - phaseStartTime;
 
-  if (elapsed < 0.8) {
-    // Burst transition
-    const t = elapsed / 0.8;
-    imageForm = 1 - easeInOutCubic(t);
-    partyForm = clamp01(easeOutBack(t));
+  if (elapsed < 1.5) {
+    // FORM: image scatters, party particles converge into text/balloons/cake
+    const t = easeInOutCubic(elapsed / 1.5);
+    imageForm = 1 - t;
+    partyForm = t;
     confettiIntensity = t;
   } else if (elapsed < 6) {
-    // Party visible
+    // HOLD: party visible, confetti active
     imageForm = 0;
     partyForm = 1;
     confettiIntensity = 1;
   } else if (elapsed < CELEBRATION_DURATION) {
-    // Reform transition
-    const t = (elapsed - 6) / (CELEBRATION_DURATION - 6);
-    partyForm = 1 - easeInOutCubic(t);
-    imageForm = easeInOutCubic(t);
+    // EXIT: party particles scatter, image reforms
+    const t = easeInOutCubic((elapsed - 6) / (CELEBRATION_DURATION - 6));
+    partyForm = 1 - t;
+    imageForm = t;
     confettiIntensity = 1 - t;
   } else {
     // Back to image
